@@ -1,0 +1,36 @@
+{
+  "name": "artist_dashboard_be",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "author": "Abhishek Magar",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "knex": "^3.1.0",
+    "module-alias": "^2.2.3",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.13.1"
+  },
+  "_moduleAliases": {
+    "src": "src",
+    "classes": "src/classes",
+    "controller": "src/controller",
+    "libs": "src/libs",
+    "middleware": "src/middleware",
+    "model": "src/model",
+    "routes": "src/routes",
+    "utils": "src/utils"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
