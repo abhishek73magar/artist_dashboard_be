@@ -13,7 +13,16 @@ const permission = (req, resource_name) => {
     if(resource){
       let checkPermission = false
       switch(req.method){
-        case "POST" | "PATCH" | "PUT" | "DELETE":
+        case "POST":
+          checkPermission = resource.edit.includes(resource_name)
+          break;
+        case "PATCH":
+          checkPermission = resource.edit.includes(resource_name)
+          break;
+        case "PUT":
+          checkPermission = resource.edit.includes(resource_name)
+          break;
+        case "DELETE":
           checkPermission = resource.edit.includes(resource_name)
           break;
         case "GET":
