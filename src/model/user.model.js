@@ -27,6 +27,25 @@ class UserModel extends DbModel {
     return this.userUpdate(payload, id)
   }
 
+  createUser = async(payload) => {
+    try {
+      const { email, password } = payload;
+      if(!email || !password) throw new HttpError(500, 'Email and Password is required !!')
+      // if(!role) throw new HttpError(500, "Role is required")
+      // if(role === 'super_admin') throw new HttpError(500, "You cann't assign super admin role")
+      const is_exist = await this.getByCol(email, 'email')
+      if(is_exist) throw new HttpError(409, 'User alredy exist !!') // conflict
+
+      Object.assign(payload, { password: _passwordHash(password) }) // hash password
+      const user = await this.insert(payload)
+      delete user.password
+
+      return user
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+
   login = async(payload) => {
     try {
       const { email, password, stay } = payload;
@@ -47,17 +66,8 @@ class UserModel extends DbModel {
 
   signup = async(payload) => {
     try {
-      const { email, password } = payload;
-      if(!email || !password) throw new HttpError(500, 'Email and Password is required !!')
-      // if(!role) throw new HttpError(500, "Role is required")
-      // if(role === 'super_admin') throw new HttpError(500, "You cann't assign super admin role")
       Object.assign(payload, { role: 'artist' })
-      const is_exist = await this.getByCol(email, 'email')
-      if(is_exist) throw new HttpError(409, 'User alredy exist !!') // conflict
-
-      Object.assign(payload, { password: _passwordHash(password) }) // hash password
-      const user = await this.insert(payload)
-      delete user.password
+      const user = await this.createUser(payload)
 
       return _genJwtToken(user)
     } catch (error) {
@@ -70,9 +80,9 @@ class UserModel extends DbModel {
 const user = new UserModel('users')
 
 module.exports = {
-  // create: user.insert,
+  create: user.createUser,
   update: user.userUpdate,
-  get: user.get,
+  get: user.pagination,
   getById: (...args) => user.getByCol(...args)
     .then(res => { 
       if(res) delete res.password; 

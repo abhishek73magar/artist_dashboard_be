@@ -26,7 +26,7 @@ class DbModel {
 
   get = (columns) => {
     const cols = Array.isArray(columns) ? columns.join(',') : '*'
-    const sql = `SELECT ${cols} FROM  ${this.tablename}`
+    const sql = `SELECT ${cols} FROM  ${this.tablename} ORDER BY id`
     return knex.raw(sql).then(({ rows }) => rows)
   }
 
@@ -41,13 +41,13 @@ class DbModel {
     return knex.raw(sql, [id]).then(({ rows }) => rows[0] ?? null)
   }
 
-  pagination = async(pagenumber, limit) => {
+  pagination = async(pagenumber=1, limit=30) => {
     try {
-      const count = await knex.raw(`SELECT count(*) FROM ${this.tablename}`)
-      const totalpage = Math.ceil(count / total)
+      const { rows: [{ count }] } = await knex.raw(`SELECT count(*) FROM ${this.tablename}`)
+      const totalpage = Math.ceil(count / limit)
       const offset = (pagenumber * limit) - limit
-
-      const sql = `SELECT * FROM ${this.tablename} ORDER BY created_at DESC LIMIT ? OFFSET ?`
+      
+      const sql = `SELECT * FROM ${this.tablename} ORDER BY id DESC LIMIT ? OFFSET ?`
       const { rows: data } = await knex.raw(sql, [limit, offset])
       return { data, totalpage, pagenumber }
     } catch (error) {

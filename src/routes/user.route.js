@@ -2,6 +2,7 @@ const router = require('express').Router()
 const user = require('controller/user.controller')
 
 router
+  .post('/', user.create)
   .patch('/:id', user.update)
   .get('/', user.get)
   .get('/verify')

@@ -1,7 +1,13 @@
 const user = require('model/user.model')
 
+const create = (req, res, next) => {
+  return user.create(req.body)
+    .then((json) => res.status(201).json(json))
+    .catch(next)
+}
+
 const get = (req, res, next) => {
-  return user.get()
+  return user.get(req.query.pagenumber, req.query.limit)
     .then((json) => res.status(200).json(json))
     .catch(next)
 }
@@ -49,4 +55,4 @@ const updateProfile = (req, res, next) => {
     .catch(next)
 }
 
-module.exports = { get, getById, update, remove, signup, login, profile, updateProfile }
+module.exports = { create, get, getById, update, remove, signup, login, profile, updateProfile }

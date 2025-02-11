@@ -1,7 +1,7 @@
 // user roles, super_admin, artist_manager, artist
 const resources = {
-  'artist_manager': { view: ['artist', 'music'], edit: ['artist', 'music'] },
-  'artist': { view: ['artist', 'music'], edit: ['music'] },
+  'artist_manager': { view: ['user', 'music'], edit: ['user', 'music'] },
+  'artist': { view: ['music'], edit: ['music'] },
 }
 
 const permission = (req, resource_name) => {
@@ -9,6 +9,7 @@ const permission = (req, resource_name) => {
     const role = req.user.role;
     if(role === 'super_admin') return resolve()
     const resource = resources[role]
+  // console.log(resource, role, resou)
     if(resource){
       let checkPermission = false
       switch(req.method){
