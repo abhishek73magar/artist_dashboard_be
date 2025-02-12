@@ -2,18 +2,18 @@ const music = require('model/music.model')
 
 const create = (req, res, next) => {
   return music.create(req.body)
-    .then((json) => res.status(200).json(json))
+    .then((json) => res.status(201).json(json))
     .catch(next)
 }
 
 const update = (req, res, next) => {
-  return music.update(req.body, req.params.id)
+  return music.update(req.body, req.params.id, true) // add udpated_at datetime
     .then((json) => res.status(200).json(json))
     .catch(next)
 }
 
 const get = (req, res, next) => {
-  return music.get()
+  return music.get(req.query.pagenumber, req.query.limit)
     .then((json) => res.status(200).json(json))
     .catch(next)
 }

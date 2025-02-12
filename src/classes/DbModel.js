@@ -18,7 +18,8 @@ class DbModel {
     return knex.raw(sql, values).then(({ rows }) => rows[0] ?? null) // returnign first index
   }
 
-  update = (payload, id) => {
+  update = (payload, id, status=false) => {
+    if(status === true) Object.assign(payload, { updated_at: new Date().toISOString() })
     const [keys, values] = this.#_getKeyValues(payload)
     const sql = `UPDATE ${this.tablename} SET ${keys.map((k) => `${k}=?`).join(',')} WHERE id=? RETURNING *`
     return knex.raw(sql, values.concat(id)).then(({ rows }) => rows[0] ?? null)

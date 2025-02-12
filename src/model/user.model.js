@@ -9,12 +9,12 @@ class UserModel extends DbModel {
     this.tablename = tablename
   }
 
-  userUpdate = (payload, id) => {
+  userUpdate = (payload, id, user) => {
     if(payload.hasOwnProperty('password')){
       if(payload.password === '') delete payload.password
       else Object.assign(payload, { password: _passwordHash(payload.password) })
     }
-
+    if(payload.role === 'super_admin' && user.role !== 'super_admin') throw HttpError(403, "You cann't modify as super admin role")
     Object.assign(payload, { updated_at: new Date().toISOString() })
     return this.update(payload, id).then((res) => {
       delete res.password;
@@ -22,25 +22,25 @@ class UserModel extends DbModel {
     })
   }
 
-  profileUpdate = (payload, id) => {
+  profileUpdate = (payload, id, user) => {
     if(payload && payload.hasOwnProperty("role")) delete payload.role
-    return this.userUpdate(payload, id)
+    return this.userUpdate(payload, id, user)
   }
 
   createUser = async(payload) => {
     try {
-      const { email, password } = payload;
+      const { email, password, role } = payload;
       if(!email || !password) throw new HttpError(500, 'Email and Password is required !!')
       // if(!role) throw new HttpError(500, "Role is required")
-      // if(role === 'super_admin') throw new HttpError(500, "You cann't assign super admin role")
+      if(role === 'super_admin') throw new HttpError(500, "You cann't assign super admin role")
       const is_exist = await this.getByCol(email, 'email')
       if(is_exist) throw new HttpError(409, 'User alredy exist !!') // conflict
 
       Object.assign(payload, { password: _passwordHash(password) }) // hash password
-      const user = await this.insert(payload)
-      delete user.password
+      const dd = await this.insert(payload)
+      delete dd.password
 
-      return user
+      return dd
     } catch (error) {
       return Promise.reject(error)
     }

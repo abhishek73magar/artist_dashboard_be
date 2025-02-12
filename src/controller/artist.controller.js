@@ -2,18 +2,18 @@ const artist = require('model/artist.model')
 
 const create = (req, res, next) => {
   return artist.create(req.body)
-    .then((json) => res.status(200).json(json))
+    .then((json) => res.status(201).json(json))
     .catch(next)
 }
 
 const update = (req, res, next) => {
-  return artist.update(req.body, req.params.id)
+  return artist.update(req.body, req.params.id, true) // add updated_at datetime
     .then((json) => res.status(200).json(json))
     .catch(next)
 }
 
 const get = (req, res, next) => {
-  return artist.get()
+  return artist.get(req.query.pagenumber, req.query.limit)
     .then((json) => res.status(200).json(json))
     .catch(next)
 }

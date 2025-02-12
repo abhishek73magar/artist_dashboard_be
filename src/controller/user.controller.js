@@ -19,7 +19,7 @@ const getById = (req, res, next) => {
 }
 
 const update = (req, res, next) => {
-  return user.update(req.body, req.params.id)
+  return user.update(req.body, req.params.id, req.user)
     .then((json) => res.status(200).json(json))
     .catch(next)
 }
