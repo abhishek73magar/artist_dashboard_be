@@ -31,7 +31,10 @@ class DbModel {
     })
     // console.log(payload)
     const sql = `INSERT INTO ${this.tablename} (${keys.join(',')}) VALUES ${bindingValues.join(',')} RETURNING *`
-    return knex.raw(sql, values).then(({ rows }) => rows);
+    return knex.raw(sql, values).then(({ rows }) => rows).catch(err => {
+      const error = err.message.split(' -').at(-1)
+      return Promise.reject(new Error(error))
+    });
   }
 
   update = (payload, id, status=false) => {

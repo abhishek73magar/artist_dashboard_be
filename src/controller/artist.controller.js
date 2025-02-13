@@ -39,7 +39,7 @@ const remove = (req, res, next) => {
 
 const importCsv = (req, res, next) => {
   return artist.importCsv(req.file)
-    .then(json => res.status(200).json(json))
+    .then(json => res.status(201).json(json))
     .catch(next)
 }
 

@@ -15,7 +15,7 @@ class Artist extends DbModel {
       let str = ''
       const readstream = fs.createReadStream("public/" + filename, 'utf-8')
       readstream.on('data', (chunk) => str += chunk)
-      readstream.on('end', () => resolve(str.replace(/\n+$/, "")))
+      readstream.on('end', () => resolve(str.replace(/\n+$/, "").replace(/\r/g, '')))
       readstream.on('error', reject)
       
     })
@@ -32,15 +32,15 @@ class Artist extends DbModel {
           const keyname = keys[indx]
           if((keyname === 'created_at' || keyname === 'updated_at') && value === '') acc[keyname] = null
           else acc[keyname] = value
-          
+
           return acc;
         }, {})
       })
-      // console.log(dd)
-      return this.insertMultiple(payload).then(res => {
-        removeFile(pathname) // remove file 
-        return res;
-      })
+    
+      console.log(payload)
+      const result = this.insertMultiple(payload)
+      removeFile(pathname) // remove file 
+      return result;
       // throw new HttpError(500, "Not Impliment")
     } catch (error) {
       removeFile(pathname)
