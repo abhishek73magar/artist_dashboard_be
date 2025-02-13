@@ -1,7 +1,7 @@
 // user roles, super_admin, artist_manager, artist
 const resources = {
-  'artist_manager': { view: ['user', 'music'], edit: ['user', 'music'] },
-  'artist': { view: ['music'], edit: ['music'] },
+  'artist_manager': { view: ['artist', 'music'], edit: ['artist', 'music'] },
+  'artist': { view: ['artist', 'music'], edit: ['music'] },
 }
 
 const permission = (req, resource_name) => {

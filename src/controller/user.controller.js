@@ -25,7 +25,7 @@ const update = (req, res, next) => {
 }
 
 const remove = (req, res, next) => {
-  return user.remove(req.params.id)
+  return user.remove(req.params.id, req.user)
     .then((json) => res.status(200).json(json))
     .catch(next)
 }
@@ -48,6 +48,11 @@ const profile = (req, res, next) => {
     .then((json) => res.status(200).json(json))
     .catch(next)
 }
+const verify = (req, res, next) => {
+  return user.verify(req.user)
+    .then((json) => res.status(200).json(json))
+    .catch(next)
+}
 
 const updateProfile = (req, res, next) => {
   return user.updateProfile(req.body, req.user.id)
@@ -55,4 +60,4 @@ const updateProfile = (req, res, next) => {
     .catch(next)
 }
 
-module.exports = { create, get, getById, update, remove, signup, login, profile, updateProfile }
+module.exports = { create, get, getById, update, remove, signup, login, profile, updateProfile, verify }

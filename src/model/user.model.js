@@ -2,6 +2,7 @@ const DbModel = require("classes/DbModel");
 const HttpError = require("classes/HttpError");
 const { _genJwtToken } = require("utils/_jwtToken");
 const { _passwordHash, _compareHash } = require("utils/_passwordHash");
+const moment = require('moment')
 
 class UserModel extends DbModel {
   constructor(tablename){
@@ -75,6 +76,25 @@ class UserModel extends DbModel {
     }
   }
 
+  _deleteUser = (id, user) => {
+    if(id === user.id) throw HttpError(403, "User cann't delete its own users")
+    return this.remove(id)
+  }
+
+  _verifyUser = async(user) => {
+    try {
+      const dd = await this.getByCol(user.id, 'id')
+      if(dd) {
+        delete dd.password;
+        const expires = moment(user.exp * 1000).utc().diff(moment().utc(), 'seconds')
+        return _genJwtToken(dd, expires)
+      }
+      throw HttpError(401, "User not found !!")
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+
 }
 
 const user = new UserModel('users')
@@ -88,9 +108,10 @@ module.exports = {
       if(res) delete res.password; 
       return res; 
     }),
-  remove: user.remove,
+  remove: user._deleteUser,
   pagination: user.pagination,
   updateProfile: user.profileUpdate,
   login: user.login,
   signup: user.signup,
+  verify: user._verifyUser
 }

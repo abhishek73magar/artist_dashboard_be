@@ -18,6 +18,22 @@ class DbModel {
     return knex.raw(sql, values).then(({ rows }) => rows[0] ?? null) // returnign first index
   }
 
+  insertMultiple = (payload) => {
+    if(!Array.isArray(payload) || payload.length === 0) throw new Error("Payload must be array and not empty")
+    const keys = Object.keys(payload[0])
+    const values = []
+    const bindingValues = payload.map((item) => {
+      const binding = keys.map((key) => {
+        values.push(item[key])
+        return '?'
+      })
+      return `(${binding.join(',')})`
+    })
+    // console.log(payload)
+    const sql = `INSERT INTO ${this.tablename} (${keys.join(',')}) VALUES ${bindingValues.join(',')} RETURNING *`
+    return knex.raw(sql, values).then(({ rows }) => rows);
+  }
+
   update = (payload, id, status=false) => {
     if(status === true) Object.assign(payload, { updated_at: new Date().toISOString() })
     const [keys, values] = this.#_getKeyValues(payload)

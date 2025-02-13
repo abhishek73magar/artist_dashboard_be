@@ -12,6 +12,7 @@ router
 
 router
   .get('/user/profile', user.profile)
+  .get('/user/verify', user.verify)
   .patch('/user/profile', user.updateProfile)
   
 router.use('/user', permission.user, require('./user.route'))

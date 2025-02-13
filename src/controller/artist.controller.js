@@ -1,4 +1,11 @@
+const { fileUpload, csvFilter } = require('libs/fileUpload')
 const artist = require('model/artist.model')
+const multer = require('multer')
+
+const uploadCsv = multer({
+  storage: fileUpload('public/csv'),
+  fileFilter: csvFilter,
+}).single('csv-file')
 
 const create = (req, res, next) => {
   return artist.create(req.body)
@@ -30,5 +37,11 @@ const remove = (req, res, next) => {
     .catch(next)
 }
 
+const importCsv = (req, res, next) => {
+  return artist.importCsv(req.file)
+    .then(json => res.status(200).json(json))
+    .catch(next)
+}
 
-module.exports = { create, update, get, getById, remove }
+
+module.exports = { create, update, get, getById, remove, uploadCsv, importCsv }
