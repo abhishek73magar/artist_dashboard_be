@@ -71,6 +71,51 @@ CREATE TYPE public.gender AS ENUM (
 
 ALTER TYPE public.gender OWNER TO postgres;
 
+--
+-- Name: update_album_count(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.update_album_count() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+      UPDATE artist
+      SET no_of_albums_released = (
+        SELECT COUNT(DISTINCT album_name)
+        FROM music
+        WHERE artist_id = NEW.artist_id
+      )
+      WHERE id = NEW.artist_id;
+      RETURN NEW;
+    END;
+    $$;
+
+
+ALTER FUNCTION public.update_album_count() OWNER TO postgres;
+
+--
+-- Name: update_album_count_on_delete(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.update_album_count_on_delete() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+    BEGIN
+      UPDATE artist
+      SET no_of_albums_released = (
+        SELECT COUNT(DISTINCT album_name)
+        FROM music
+        WHERE artist_id = OLD.artist_id
+      )
+      WHERE id = OLD.artist_id;
+
+      RETURN OLD;
+    END;
+    $$;
+
+
+ALTER FUNCTION public.update_album_count_on_delete() OWNER TO postgres;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -353,86 +398,6 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
--- Data for Name: artist; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.artist (id, name, dob, gender, address, no_of_albums_released, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: knex_migrations; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.knex_migrations (id, name, batch, migration_time) FROM stdin;
-5	20250204143057_initial.js	1	2025-02-07 23:18:39.947+05:45
-\.
-
-
---
--- Data for Name: knex_migrations_lock; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.knex_migrations_lock (index, is_locked) FROM stdin;
-1	0
-\.
-
-
---
--- Data for Name: music; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.music (id, artist_id, title, album_name, genre, created_at, updated_at) FROM stdin;
-\.
-
-
---
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.users (id, first_name, last_name, email, password, phone, dob, address, created_at, updated_at, gender, role) FROM stdin;
-2	Shyam	rai	shyam.rai@gmail.com	$2b$10$jnc/JsaA4I7OMJbeowqYjeVme.Vc/XmwIIwW4STe8INCXNfE7WSfK		2013-01-31		2025-02-07 23:29:28.354851+05:45	\N	m	artist
-1	Abhishek	Magar	aavishek60@gmail.com	$2b$10$zAUiPnx279Pg/f5JsTPNeeAjjNdbo.d1kJM7rMqX19OVqQG/.0Y12	9861856773	2001-03-15	Lalitpur	2025-02-07 23:22:34.789713+05:45	2025-02-09 20:47:00.974+05:45	m	artist
-3	Super	Admin	admin@email.com	$2b$10$jiCnFqenJ59kiio53/xRHO0I8yhHu2temrmdol.G0OfsdjlRY7qsC		\N		2025-02-09 21:40:53.008666+05:45	\N	m	super_admin
-\.
-
-
---
--- Name: artist_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.artist_id_seq', 1, false);
-
-
---
--- Name: knex_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.knex_migrations_id_seq', 5, true);
-
-
---
--- Name: knex_migrations_lock_index_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.knex_migrations_lock_index_seq', 1, true);
-
-
---
--- Name: music_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.music_id_seq', 1, false);
-
-
---
--- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.users_id_seq', 3, true);
-
-
---
 -- Name: artist artist_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -478,6 +443,20 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: music trigger_update_album_count; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER trigger_update_album_count AFTER INSERT OR UPDATE ON public.music FOR EACH ROW EXECUTE FUNCTION public.update_album_count();
+
+
+--
+-- Name: music trigger_update_album_count_on_delete; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER trigger_update_album_count_on_delete AFTER DELETE ON public.music FOR EACH ROW EXECUTE FUNCTION public.update_album_count_on_delete();
 
 
 --
